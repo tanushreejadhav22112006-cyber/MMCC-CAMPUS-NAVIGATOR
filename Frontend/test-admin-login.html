@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-box {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #5B21B6;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-left: 4px solid #6366F1;
+            background: #f9fafb;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #1f2937;
+        }
+        button {
+            background: #6366F1;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #4f46e5;
+        }
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+        }
+        .success {
+            background: #d1fae5;
+            border: 1px solid #10b981;
+            color: #065f46;
+        }
+        .error {
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #991b1b;
+        }
+        .loading {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+        }
+        pre {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+        .info {
+            background: #dbeafe;
+            border: 1px solid #3b82f6;
+            color: #1e40af;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-box">
+        <h1>🧪 Admin Login Test Page</h1>
+        
+        <div class="info">
+            <strong>📋 Test Instructions:</strong><br>
+            1. Make sure backend is running on http://127.0.0.1:5001<br>
+            2. Click "Test Admin Login" button<br>
+            3. Check the result below for success/failure<br>
+            4. If successful, click "Go to Admin Dashboard" to open admin.html
+        </div>
+
+        <div class="test-section">
+            <h3>Test 1: Admin Login API</h3>
+            <button onclick="testAdminLogin()" id="loginBtn">Test Admin Login</button>
+            <div id="loginResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 2: Admin Stats API</h3>
+            <button onclick="testAdminStats()" id="statsBtn" disabled>Test Admin Stats</button>
+            <div id="statsResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 3: Verify Regular Login Blocks Admin</h3>
+            <button onclick="testRegularLogin()" id="regularBtn">Test Regular Login (Should Fail)</button>
+            <div id="regularResult" class="result"></div>
+        </div>
+
+        <div style="margin-top: 30px; text-align: center;">
+            <button onclick="openAdminDashboard()" style="background: #10b981; font-size: 18px;">
+                🚀 Go to Admin Dashboard
+            </button>
+            <button onclick="clearStorage()" style="background: #ef4444;">
+                🗑️ Clear Storage
+            </button>
+        </div>
+
+        <div id="storageInfo" style="margin-top: 20px; padding: 15px; background: #f3f4f6; border-radius: 6px; display: none;">
+            <h4>Current localStorage:</h4>
+            <pre id="storageData"></pre>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:5001/api';
+        let currentToken = null;
+
+        // Test admin login
+        async function testAdminLogin() {
+            const btn = document.getElementById('loginBtn');
+            const result = document.getElementById('loginResult');
+            
+            btn.disabled = true;
+            btn.textContent = 'Testing...';
+            result.className = 'result loading';
+            result.style.display = 'block';
+            result.innerHTML = '⏳ Attempting admin login...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/admin/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@mmcc.edu',
+                        password: 'admin123'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    currentToken = data.access_token;
+                    
+                    // Store in localStorage like the real app
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('user_id', data.user.id);
+                    localStorage.setItem('user_name', data.user.name);
+                    localStorage.setItem('user_email', data.user.email);
+                    localStorage.setItem('user_type', data.user.user_type);
+                    localStorage.setItem('is_admin', 'true');
+
+                    result.className = 'result success';
+                    result.innerHTML = `
+                        ✅ <strong>Admin Login Successful!</strong><br><br>
+                        <strong>User Type:</strong> ${data.user.user_type}<br>
+                        <strong>User Name:</strong> ${data.user.name}<br>
+                        <strong>Email:</strong> ${data.user.email}<br><br>
+                        Token stored in localStorage. You can now test admin stats!
+                    `;
+                    
+                    document.getElementById('statsBtn').disabled = false;
+                    showStorage();
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ <strong>Login Failed!</strong><br><br><strong>Error:</strong> ${data.error}`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `❌ <strong>Network Error!</strong><br><br><strong>Error:</strong> ${error.message}<br><br>Make sure backend is running on http://127.0.0.1:5001`;
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Test Admin Login';
+        }
+
+        // Test admin stats
+        async function testAdminStats() {
+            const btn = document.getElementById('statsBtn');
+            const result = document.getElementById('statsResult');
+            const token = localStorage.getItem('access_token');
+
+            if (!token) {
+                result.className = 'result error';
+                result.innerHTML = '❌ No token found. Please login first.';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Testing...';
+            result.className = 'result loading';
+            result.style.display = 'block';
+            result.innerHTML = '⏳ Fetching admin stats...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/admin/stats`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    result.className = 'result success';
+                    result.innerHTML = `
+                        ✅ <strong>Admin Stats Loaded Successfully!</strong><br><br>
+                        <strong>Total Users:</strong> ${data.total_users}<br>
+                        <strong>Total Logins:</strong> ${data.total_logins}<br>
+                        <strong>Active Users:</strong> ${data.active_users}<br>
+                        <strong>Students:</strong> ${data.student_count}<br>
+                        <strong>Faculty:</strong> ${data.faculty_count}<br>
+                        <strong>Visitors:</strong> ${data.visitor_count}<br>
+                        <strong>Admins:</strong> ${data.admin_count}<br>
+                        <strong>Total Locations:</strong> ${data.total_locations}<br>
+                        <strong>Buildings:</strong> ${data.building_count}<br>
+                        <strong>Laboratories:</strong> ${data.lab_count}<br>
+                        <strong>Classrooms:</strong> ${data.classroom_count}
+                    `;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ <strong>Failed to Load Stats!</strong><br><br><strong>Error:</strong> ${data.error}`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `❌ <strong>Network Error!</strong><br><br><strong>Error:</strong> ${error.message}`;
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Test Admin Stats';
+        }
+
+        // Test regular login (should fail for admin)
+        async function testRegularLogin() {
+            const btn = document.getElementById('regularBtn');
+            const result = document.getElementById('regularResult');
+
+            btn.disabled = true;
+            btn.textContent = 'Testing...';
+            result.className = 'result loading';
+            result.style.display = 'block';
+            result.innerHTML = '⏳ Attempting regular login with admin credentials...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@mmcc.edu',
+                        password: 'admin123'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.status === 403) {
+                    result.className = 'result success';
+                    result.innerHTML = `✅ <strong>Correctly Blocked!</strong><br><br>Admin cannot use regular login endpoint.<br><strong>Error:</strong> ${data.error}`;
+                } else if (response.ok) {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ <strong>SECURITY ISSUE!</strong><br><br>Admin was able to login through regular endpoint! This should not happen.`;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `⚠️ <strong>Unexpected Response</strong><br><br><strong>Status:</strong> ${response.status}<br><strong>Error:</strong> ${data.error}`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `❌ <strong>Network Error!</strong><br><br><strong>Error:</strong> ${error.message}`;
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Test Regular Login (Should Fail)';
+        }
+
+        // Open admin dashboard
+        function openAdminDashboard() {
+            const token = localStorage.getItem('access_token');
+            const userType = localStorage.getItem('user_type');
+
+            if (!token) {
+                alert('Please login first by clicking "Test Admin Login"');
+                return;
+            }
+
+            if (userType !== 'admin') {
+                alert('User is not admin. Please login again.');
+                return;
+            }
+
+            // Open admin.html
+            window.location.href = 'admin.html';
+        }
+
+        // Clear localStorage
+        function clearStorage() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('user_name');
+            localStorage.removeItem('user_email');
+            localStorage.removeItem('user_type');
+            localStorage.removeItem('is_admin');
+            
+            currentToken = null;
+            document.getElementById('statsBtn').disabled = true;
+            
+            alert('localStorage cleared!');
+            showStorage();
+        }
+
+        // Show current storage data
+        function showStorage() {
+            const info = document.getElementById('storageInfo');
+            const data = document.getElementById('storageData');
+            
+            info.style.display = 'block';
+            data.textContent = JSON.stringify({
+                access_token: localStorage.getItem('access_token') ? '***' + localStorage.getItem('access_token').slice(-20) : null,
+                user_id: localStorage.getItem('user_id'),
+                user_name: localStorage.getItem('user_name'),
+                user_email: localStorage.getItem('user_email'),
+                user_type: localStorage.getItem('user_type'),
+                is_admin: localStorage.getItem('is_admin')
+            }, null, 2);
+        }
+    </script>
+</body>
+</html>

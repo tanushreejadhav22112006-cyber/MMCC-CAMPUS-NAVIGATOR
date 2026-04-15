@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MMCC Campus Navigator - Home</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <script>
+        // Check if user is logged in, if not redirect to login
+        const token = localStorage.getItem('access_token');
+        const isAdmin = localStorage.getItem('is_admin') === 'true';
+        
+        if (token) {
+            // User is logged in, update navbar
+            updateNavbar();
+        }
+        
+        // Check authentication before accessing dashboard
+        function checkAuth(event) {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                event.preventDefault();
+                alert('Please login first to access the dashboard');
+                window.location.href = 'login.html';
+            }
+        }
+        
+        // Update navbar based on login status
+        function updateNavbar() {
+            const authLink = document.getElementById('authLink');
+            const registerLink = document.getElementById('registerLink');
+            const userName = localStorage.getItem('user_name');
+            const avatarElement = document.getElementById('homeAvatar');
+
+            if (authLink) {
+                authLink.textContent = 'Logout';
+                authLink.href = '#';
+                authLink.onclick = function(e) {
+                    e.preventDefault();
+                    logout();
+                };
+            }
+
+            if (registerLink) {
+                registerLink.style.display = 'none';
+            }
+
+            // Show welcome message if available
+            if (userName) {
+                const userProfile = document.querySelector('.user-profile span');
+                if (userProfile) {
+                    userProfile.textContent = 'Welcome, ' + userName;
+                }
+                // Update avatar with first letter
+                if (avatarElement) {
+                    avatarElement.textContent = userName.charAt(0).toUpperCase();
+                }
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('user_name');
+            localStorage.removeItem('user_email');
+            localStorage.removeItem('user_type');
+            localStorage.removeItem('is_admin');
+            alert('Logged out successfully!');
+            window.location.href = 'login.html';
+        }
+    </script>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <i class="fas fa-map-location-dot"></i>
+                <span>MMCC Campus Navigator</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link active">Home</a></li>
+                <li><a href="dashboard.html" class="nav-link" onclick="checkAuth(event)">Dashboard</a></li>
+                <li><a href="login.html" class="nav-link" id="authLink">Login</a></li>
+                <li><a href="register.html" class="nav-link register-btn" id="registerLink">Register</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="user-profile" style="display: flex; align-items: center; gap: 0.5rem;">
+                <div class="profile-avatar admin-avatar" id="homeAvatar">U</div>
+                <span>Guest User</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Navigate MMCC Pune with Ease</h1>
+            <p class="hero-subtitle">Discover buildings, departments, and facilities using modern technology</p>
+            <div class="hero-buttons">
+                <a href="register.html" class="btn btn-primary">Get Started</a>
+                <a href="#features" class="btn btn-secondary">Learn More</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <div class="floating-card">
+                <i class="fas fa-map"></i>
+                <span>Smart Navigation</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Amazing Features</h2>
+            <p class="section-subtitle">Everything you need to navigate the campus</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon purple-light">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3>Secure Authentication</h3>
+                    <p>Safe login system with password recovery and secure user accounts</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon purple-light">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <h3>Campus Map</h3>
+                    <p>Interactive map showing all buildings, labs, and departments</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon purple-light">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Smart Search</h3>
+                    <p>Search departments, buildings, and classrooms instantly</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon purple-light">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h3>Camera Recognition</h3>
+                    <p>Scan buildings and labs using your device camera</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon purple-light">
+                        <i class="fas fa-location-dot"></i>
+                    </div>
+                    <h3>GPS Location</h3>
+                    <p>Find your location and get directions to nearest facilities</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon purple-light">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <h3>Detailed Info</h3>
+                    <p>Get comprehensive information about every location</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How it Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Sign Up</h3>
+                    <p>Create your account quickly and easily</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Login</h3>
+                    <p>Access your personalized dashboard</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Explore</h3>
+                    <p>Use search, map, or camera to find locations</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Navigate</h3>
+                    <p>Get directions and detailed information</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="cta-content">
+            <h2>Ready to Explore Your Campus?</h2>
+            <p>Join thousands of students navigating campus with ease</p>
+            <a href="register.html" class="btn btn-large">Start Your Journey</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>MMCC Campus Navigator</h4>
+                <p>Making campus navigation simple and accessible for everyone at MMCC Pune</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="login.html">Login</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 MMCC Campus Navigator. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>

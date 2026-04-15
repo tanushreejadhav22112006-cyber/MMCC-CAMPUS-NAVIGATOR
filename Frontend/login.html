@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MMCC Campus Navigator - Login</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <script>
+        // Check if already logged in
+        const token = localStorage.getItem('access_token');
+
+        if (token) {
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <i class="fas fa-map-location-dot"></i>
+                <span>MMCC Campus Navigator</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="login.html" class="nav-link active">Login</a></li>
+                <li><a href="register.html" class="nav-link register-btn">Register</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Section -->
+    <section class="auth-section">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1>Welcome to MMCC</h1>
+                    <p>Login to your MMCC Campus Navigator account</p>
+                </div>
+
+                <form class="auth-form" id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                        </div>
+                        <span class="error-message" id="emailError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                            <i class="fas fa-eye toggle-password" onclick="togglePassword('password')"></i>
+                        </div>
+                        <span class="error-message" id="passwordError"></span>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="remember-me">
+                            <input type="checkbox" name="remember">
+                            <span>Remember me</span>
+                        </label>
+                        <a href="forgot-password.html" class="forgot-link">Forgot Password?</a>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="userType">Select Your Role</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user-tag"></i>
+                            <select id="userType" name="userType" required>
+                                <option value="student">Student</option>
+                                <option value="faculty">Faculty</option>
+                                <option value="visitor">Visitor</option>
+                            </select>
+                        </div>
+                        <span class="error-message" id="userTypeError"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full">Login</button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="register.html" class="auth-link">Register here</a></p>
+                </div>
+
+                <div class="divider">
+                    <span>OR</span>
+                </div>
+
+                <div class="admin-login-section">
+                    <button type="button" class="btn btn-admin-login" id="toggleAdminBtn">
+                        <i class="fas fa-user-shield"></i>
+                        Login as Admin
+                    </button>
+
+                    <div id="adminLoginForm" style="display: none; margin-top: 1.5rem;">
+                        <h3 style="color: var(--primary-dark); margin-bottom: 1rem; font-size: 1.1rem;">
+                            <i class="fas fa-lock"></i> Admin Access
+                        </h3>
+                        <div class="form-group">
+                            <label for="adminEmail">Admin Email</label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" id="adminEmail" name="adminEmail" placeholder="Enter admin email" required>
+                            </div>
+                            <span class="error-message" id="adminEmailError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="adminPassword">Admin Password</label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="adminPassword" name="adminPassword" placeholder="Enter admin password" required>
+                                <i class="fas fa-eye toggle-password" onclick="togglePassword('adminPassword')"></i>
+                            </div>
+                            <span class="error-message" id="adminPasswordError"></span>
+                        </div>
+
+                        <button type="button" class="btn btn-primary btn-full" id="adminLoginBtn">
+                            <i class="fas fa-user-shield"></i> Login as Admin
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-illustration">
+                <div class="illustration-content">
+                    <i class="fas fa-lock-open"></i>
+                    <h3>Secure Access</h3>
+                    <p>Your data is protected with enterprise-grade security</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-bottom">
+            <p>&copy; 2024 Campus Navigator. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="assets/js/script.js"></script>
+    <script>
+        // Use API_BASE_URL from script.js - don't redeclare it!
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Clear previous errors
+            clearErrors();
+            
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+            const userType = document.getElementById('userType').value;
+            
+            // Validate inputs
+            let hasError = false;
+            
+            if (!email) {
+                showError('emailError', 'Email is required');
+                hasError = true;
+            }
+            
+            if (!password) {
+                showError('passwordError', 'Password is required');
+                hasError = true;
+            }
+            
+            if (!userType) {
+                showError('userTypeError', 'Please select your role');
+                hasError = true;
+            }
+            
+            if (hasError) return;
+            
+            const loginBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = loginBtn.innerHTML;
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            
+            fetch(`${API_BASE_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError('emailError', data.error);
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = originalText;
+                    return;
+                }
+                
+                // Store user data
+                localStorage.setItem('access_token', data.access_token);
+                localStorage.setItem('user_id', data.user.id);
+                localStorage.setItem('user_name', data.user.name);
+                localStorage.setItem('user_email', data.user.email);
+                localStorage.setItem('user_type', data.user.user_type);
+                
+                // Redirect to dashboard
+                window.location.href = 'dashboard.html';
+            })
+            .catch(error => {
+                console.error('Login error:', error);
+                showError('emailError', 'Unable to connect to server. Please try again.');
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = originalText;
+            });
+        });
+        
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+        }
+        
+        function clearErrors() {
+            const errorElements = document.querySelectorAll('.error-message');
+            errorElements.forEach(el => {
+                el.textContent = '';
+                el.style.display = 'none';
+            });
+        }
+        
+        // Update select styling on change
+        const userTypeSelect = document.getElementById('userType');
+        if (userTypeSelect) {
+            userTypeSelect.addEventListener('change', function() {
+                this.classList.add('selected');
+            });
+        }
+
+        // Toggle admin login form - GLOBAL FUNCTION
+        window.toggleAdminLogin = function() {
+            const adminForm = document.getElementById('adminLoginForm');
+            console.log('toggleAdminLogin called, current display:', adminForm.style.display);
+            if (adminForm.style.display === 'none' || adminForm.style.display === '') {
+                adminForm.style.display = 'block';
+                console.log('Admin form shown');
+            } else {
+                adminForm.style.display = 'none';
+                console.log('Admin form hidden');
+            }
+        }
+
+        // Admin login function - GLOBAL FUNCTION
+        window.adminLogin = function() {
+            // Clear previous errors
+            clearErrors();
+
+            const email = document.getElementById('adminEmail').value.trim().toLowerCase();
+            const password = document.getElementById('adminPassword').value;
+
+            console.log('Attempting admin login with:', { email, password: '***' });
+
+            // Validate inputs
+            let hasError = false;
+
+            if (!email) {
+                showError('adminEmailError', 'Admin email is required');
+                hasError = true;
+            }
+
+            if (!password) {
+                showError('adminPasswordError', 'Admin password is required');
+                hasError = true;
+            }
+
+            if (hasError) {
+                console.log('Validation failed');
+                return;
+            }
+
+            const loginBtn = document.getElementById('adminLoginBtn');
+            const originalText = loginBtn.innerHTML;
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+
+            console.log('Sending request to:', `${API_BASE_URL}/auth/admin/login`);
+
+            fetch(`${API_BASE_URL}/auth/admin/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                
+                if (data.error) {
+                    showError('adminEmailError', data.error);
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = originalText;
+                    return;
+                }
+
+                console.log('Login successful! Storing user data...');
+                console.log('User type:', data.user.user_type);
+
+                // Store user data
+                localStorage.setItem('access_token', data.access_token);
+                localStorage.setItem('user_id', data.user.id);
+                localStorage.setItem('user_name', data.user.name);
+                localStorage.setItem('user_email', data.user.email);
+                localStorage.setItem('user_type', data.user.user_type);
+                localStorage.setItem('is_admin', 'true');
+
+                console.log('Redirecting to admin.html...');
+
+                // Redirect to admin dashboard
+                window.location.href = 'admin.html';
+            })
+            .catch(error => {
+                console.error('Admin login error:', error);
+                showError('adminEmailError', 'Unable to connect to server. Please try again.');
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = originalText;
+            });
+        }
+
+        // Attach event listeners immediately
+        const toggleBtn = document.getElementById('toggleAdminBtn');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Toggle button clicked');
+                window.toggleAdminLogin();
+            });
+            console.log('Toggle button listener attached');
+        }
+
+        const adminLoginBtn = document.getElementById('adminLoginBtn');
+        if (adminLoginBtn) {
+            adminLoginBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Admin login button clicked');
+                window.adminLogin();
+            });
+            console.log('Admin login button listener attached');
+        }
+    </script>
+    
+    <style>
+        .input-wrapper select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            padding-left: 2.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            background-color: white;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-wrapper select:focus {
+            outline: none;
+            border-color: #6366F1;
+        }
+
+        .input-wrapper select.selected {
+            border-color: #10B981;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i.fa-user-tag {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748B;
+            pointer-events: none;
+        }
+
+        .btn-admin-login {
+            background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            color: white;
+            border: none;
+            padding: 0.875rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-admin-login:hover {
+            background: linear-gradient(135deg, #6D28D9 0%, #4C1D95 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-admin-login:active {
+            transform: translateY(0);
+        }
+
+        .admin-login-section {
+            margin-top: 1rem;
+        }
+    </style>
+</body>
+</html>
